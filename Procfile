@@ -1,1 +1,1 @@
-web: gunicorn projectOne.wsgi:application --log-file -
+web: gunicorn Tweeter.wsgi:application --bind 0.0.0.0:8000 --log-file -

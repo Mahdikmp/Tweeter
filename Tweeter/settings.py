@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 
+
+ALLOWED_HOSTS = ['web-production-14bff.up.railway.app', '127.0.0.1', 'localhost']
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
