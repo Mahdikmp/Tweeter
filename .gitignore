@@ -1,0 +1,29 @@
+# Django
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+*.sqlite3-journal
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Media (عکس پروفایل و آپلودها)
+media/
+*/media/
+
+# Environment variables
+.env
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Mac/Win
+.DS_Store
+Thumbs.db
