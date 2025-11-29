@@ -1,0 +1,88 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="row g-5">
+
+        <!-- Main Feed - Tweets -->
+        <div class="col-lg-8">
+
+            <h2 class="fw-bold mb-5" style="color: #1DA1F2; font-size: 1.8rem;">Home</h2>
+
+            {% for tweet in tweets %}
+            <div class="bg-white border rounded mb-4 p-4" style="border: 1px solid #e1e8ed;">
+                <div class="d-flex gap-3">
+
+                    <!-- User Avatar -->
+                    {% if tweet.user.profile.profile_image %}
+                        <img src="{{ tweet.user.profile.profile_image.url }}" 
+                             class="rounded-circle flex-shrink-0" width="48" height="48" alt="{{ tweet.user.username }}">
+                    {% else %}
+                        <img src="{% static 'images/default.png' %}" 
+                             class="rounded-circle flex-shrink-0" width="48" height="48" alt="default">
+                    {% endif %}
+
+                    <div class="w-100">
+                        <h6 class="fw-bold mb-1">{{ tweet.user.username }}</h6>
+                        <p class="mb-3 text-dark">{{ tweet.body }}</p>
+
+                        <div class="d-flex align-items-center gap-4 small text-muted">
+
+                            <!-- Like Button -->
+                            {% if request.user.is_authenticated %}
+                                <form action="{% url 'tweetLike' tweet.id %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    {% if request.user in tweet.likes.all %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Unlike</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Like</button>
+                                    {% endif %}
+                                </form>
+                            {% endif %}
+
+                            <!-- Comment Button -->
+                            <a href="{% url 'tweet' tweet.id %}">
+                                <button class="btn btn-sm btn-outline-secondary">Comment</button>
+                            </a>
+
+                            <!-- Stats -->
+                            <span>{{ tweet.likes.count }} likes</span>
+                            <span>{{ tweet.comments.count }} comments</span>
+                            <span style="color: #1DA1F2;">{{ tweet.created|timesince }} ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <p class="fs-5">No tweets yet. Be the first to post!</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Sidebar - Post New Tweet -->
+        {% if request.user.is_authenticated %}
+        <div class="col-lg-4">
+            <div class="bg-white border rounded p-4" style="border: 1px solid #e1e8ed; position: sticky; top: 2rem;">
+                <h5 class="fw-bold mb-4">Post a new Tweet</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.body }}
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4 btn-sm w-100" 
+                            style="background: #1DA1F2; border: none;">
+                        Post Tweet
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock content %}

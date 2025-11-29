@@ -1,0 +1,44 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+
+<h1> User followings</h1>
+
+
+
+
+<div class="container py-5">
+
+    <div class="list-group">
+        {% for following in profile.follows.all %}
+            <a href="{% url 'profile' following.user.id %}" class="list-group-item list-group-item-action py-3">
+                <div class="d-flex align-items-center gap-3">
+                    
+                    {% if follower.profile_image %}
+                        <img src="{{ following.profile_image.url }}" 
+                             class="rounded-circle" width="50" height="50" alt="{{ profile.user.username }}">
+                    {% else %}
+                        <img src="{% static 'images/default.png' %}" 
+                             class="rounded-circle" width="50" height="50" alt="default">
+                    {% endif %}
+                    <div>
+                        <h6 class="mb-1 fw-bold">{{ following.user.username }}</h6>
+                        <p class="mb-1"> {{ following.bio }} </p>
+                        <small class="text-muted">Joined {{ following.created|date:"d M Y" }}</small>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                    {% if following in request.user.profile.follows.all %}
+                    <a href="{% url 'unfollow_user' following.user.id %}" class="btn btn-outline-danger btn-sm">Unfollow</a>
+                    {% else %}
+                    <a href="{% url 'follow_user' following.user.id %}" class="btn btn-primary btn-sm">Follow</a>
+                    {% endif %}
+                    {% endif %}
+
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,78 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="card w-75 mb-4 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex align-items-start">
+        {% if tweet.user.profile.profile_image %}
+        <img src="{{ tweet.user.profile.profile_image.url }}" class="rounded-circle me-3" width="50" height="50" alt="{{ tweet.user.username }}">
+        {% else %}
+        <img src="{% static 'images/default.png' %}" class="rounded-circle me-3" width="50" height="50" alt="default">
+        {% endif %}
+        <div class="flex-grow-1">
+          <h6 class="mb-1 fw-bold">{{ tweet.user.username }}</h6>
+          <p class="mb-3 text-dark">{{ tweet.body }}</p>
+          {% if request.user.is_authenticated %}
+          <form action="{% url 'tweetLike' tweet.id %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            {% if request.user in tweet.likes.all %}
+            <button class="btn btn-sm btn-outline-danger" type="submit">Unlike</button>
+            {% else %}
+            <button class="btn btn-sm btn-outline-primary" type="submit">Like</button>
+            {% endif %}
+          </form>
+          &nbsp;&nbsp;
+          {% if tweet.user == request.user %}
+          <a href="{% url 'tweet_delete' tweet.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+          <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+          {% endif %}
+          {% endif %}
+          <small class="text-muted">{{ tweet.likes.count }} likes</small>
+          <span class="text-muted">•</span>
+          <small style="color: #1DA1F2;">{{ tweet.created|timesince }} ago</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <div class="card mb-4">
+      <div class="card-body">
+          <form method="post" action="">
+              {% csrf_token %}
+              {{ form.body }} <br>
+              <button type="submit" class="btn btn-primary mt-3">Comment</button>
+          </form>
+      </div>
+  </div>
+  {% endif %}
+
+
+  <div class="comments">
+    {% for comment in comments %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body py-3">
+            <div class="d-flex">
+                <div class="me-3">
+                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                        {{ comment.user.username.0|upper }}
+                    </div>
+                </div>
+                <div>
+                    <strong>{{ comment.user.username }}</strong>
+                    <small class="text-muted">{{ comment.created|timesince }} ago</small>
+                    <p class="mt-1 mb-0">{{ comment.body }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center text-muted"> No comments yet! </p>
+    {% endfor %}
+</div>
+
+
+{% endblock content %}

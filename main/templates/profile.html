@@ -1,0 +1,137 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="row g-5">
+
+        <!-- Left Column - Tweets -->
+        <div class="col-lg-7">
+
+            <!-- Profile Header (Only for logged-in user viewing own profile) -->
+            {% if request.user.is_authenticated and request.user.id == profile.user.id %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">{{ profile.user.username }}</h2>
+                <div>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-outline-dark btn-sm me-2">Edit Profile</a>
+                    <a href="{% url 'password_change' %}" class="btn btn-outline-dark btn-sm me-2">Change Password</a>
+                    <a href="{% url 'profile_image' %}" class="btn btn-outline-dark btn-sm">Change Picture</a>
+                </div>
+            </div>
+            <hr class="mb-5">
+            {% endif %}
+
+            <!-- Tweets List -->
+            {% for tweet in tweets %}
+            <div class="bg-white border rounded mb-4 p-4" style="border: 1px solid #e1e8ed;">
+                <div class="d-flex gap-3">
+
+                    <!-- User Avatar -->
+                    {% if tweet.user.profile.profile_image %}
+                        <img src="{{ tweet.user.profile.profile_image.url }}" 
+                             class="rounded-circle flex-shrink-0" width="48" height="48" alt="{{ tweet.user.username }}">
+                    {% else %}
+                        <img src="{% static 'images/default.png' %}" 
+                             class="rounded-circle flex-shrink-0" width="48" height="48" alt="default">
+                    {% endif %}
+
+                    <div class="w-100">
+                        <h6 class="fw-bold mb-1">{{ tweet.user.username }}</h6>
+                        <p class="mb-3 text-dark">{{ tweet.body }}</p>
+
+                        <div class="d-flex align-items-center gap-4 small text-muted">
+                            <span style="color: #1DA1F2;">{{ tweet.created|timesince }} ago</span>
+
+                            {% if request.user.is_authenticated %}
+                                <form action="{% url 'tweetLike' tweet.id %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    {% if request.user in tweet.likes.all %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Unlike</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Like</button>
+                                    {% endif %}
+                                </form>
+                                <span>{{ tweet.likes.count }} likes</span>
+
+                                {% if request.user == tweet.user %}
+                                    <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <a href="{% url 'tweet_delete' tweet.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                {% endif %}
+                            {% endif %}
+                            <a href="{% url 'tweet' tweet.id %}"><button class="btn btn-sm btn-outline-secondary">Comment</button></a>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <p class="fs-5">No tweets yet.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Right Sidebar - Profile Info -->
+        <div class="col-lg-4 offset-lg-1">
+
+            <!-- Profile Card -->
+            <div class="text-center mb-5">
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" 
+                         class="rounded-circle mb-3" width="120" height="120" alt="{{ profile.user.username }}">
+                {% else %}
+                    <img src="{% static 'images/default.png' %}" 
+                         class="rounded-circle mb-3" width="120" height="120" alt="default">
+                {% endif %}
+
+                <h4 class="fw-bold">{{ profile.user.username }}</h4>
+                <p class="text-muted small">{{ profile.bio|default:"No bio available" }}</p>
+
+                <!-- Follow/Unfollow Button (for others) -->
+                {% if request.user.is_authenticated and request.user != profile.user %}
+                    {% if profile in request.user.profile.follows.all %}
+                        <a href="{% url 'unfollow_user' profile.user.id %}" 
+                           class="btn btn-outline-danger px-4 btn-sm">Unfollow</a>
+                    {% else %}
+                        <a href="{% url 'follow_user' profile.user.id %}" 
+                           class="btn btn-primary px-4 btn-sm" 
+                           style="background: #1DA1F2; border: none;">Follow</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Following Card -->
+            <div class="bg-white border rounded p-4 mb-4" style="border: 1px solid #e1e8ed;">
+                <a href="{% url 'user_followings' profile.user.id %}" class="text-decoration-none">
+                    <h5 class="fw-bold mb-3">Following ({{ profile.follows.count }})</h5>
+                </a>
+                {% for following in profile.follows.all|slice:":5" %}
+                    <a href="{% url 'profile' following.user.id %}" class="d-block text-dark small mb-1 text-decoration-none">
+                        {{ following.user.username }}
+                    </a>
+                {% empty %}
+                    <small class="text-muted">Not following anyone</small>
+                {% endfor %}
+            </div>
+
+            <!-- Followers Card -->
+            <div class="bg-white border rounded p-4" style="border: 1px solid #e1e8ed;">
+                <a href="{% url 'user_followers' profile.user.id %}" class="text-decoration-none">
+                    <h5 class="fw-bold mb-3">Followers ({{ profile.followed_by.count }})</h5>
+                </a>
+                {% for follower in profile.followed_by.all|slice:":5" %}
+                    <a href="{% url 'profile' follower.user.id %}" class="d-block text-dark small mb-1 text-decoration-none">
+                        {{ follower.user.username }}
+                    </a>
+                {% empty %}
+                    <small class="text-muted">No followers yet</small>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

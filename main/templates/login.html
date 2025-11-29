@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+{% block content %}
+
+{% if request.user.is_authenticated %}
+
+<h1>You are already loggend in ! </h1>
+
+{% else %}
+<h1>Login</h1>
+<br><br>
+
+<form method="Post" action="{% url 'login' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="exampleInputEmail1" class="form-label">Username</label>
+      <input name= "username" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="For example : Mehdi">
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Password</label>
+      <input name="password" type="password" class="form-control" id="exampleInputPassword1">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+  <small class="text-muted">
+    <a href="{% url 'reset_password' %}">Forgot Password?</a>
+  </small>
+
+  {% endif %}
+
+{% endblock content %}

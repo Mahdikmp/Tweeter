@@ -1,0 +1,77 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container py-5">
+    <h2 class="fw-bold mb-4" style="color: #1DA1F2; font-size: 1.8rem;">
+        {% if query %}
+            Search results for "{{ query }}" ({{ count }})
+        {% else %}
+            Search Users
+        {% endif %}
+    </h2>
+
+    {% if profiles %}
+    <div class="row g-4">
+        {% for profile in profiles %}
+            <div class="col-12">
+                <a href="{% url 'profile' profile.user.id %}" class="text-decoration-none">
+                    <div class="d-flex align-items-center justify-content-between p-4 bg-white border rounded" 
+                         style="border: 1px solid #e1e8ed;">
+                    
+                        <!-- Profile Image & Info -->
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="flex-shrink-0">
+                                {% if profile.profile_image %}
+                                    <img src="{{ profile.profile_image.url }}" 
+                                     class="rounded-circle"
+                                     width="64" height="64" alt="{{ profile.user.username }}">
+                                    {% else %}
+                                    <img src="{% static 'images/default.png' %}" 
+                                     class="rounded-circle"
+                                     width="64" height="64" alt="default">
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <h5 class="mb-1 fw-bold text-dark">{{ profile.user.username }}</h5>
+                                <p class="mb-1 text-muted small">
+                                    {{ profile.bio|default:"No bio available" }}
+                                </p>
+                                <small class="text-muted">
+                                    Joined {{ profile.created|date:"d M Y" }}
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Follow / Unfollow Button -->
+                        {% if request.user.is_authenticated and request.user != profile.user %}
+                            {% if profile in request.user.profile.follows.all %}
+                                <a href="{% url 'unfollow_user' profile.user.id %}" 
+                                    class="btn btn-outline-danger btn-sm px-4">
+                                    Unfollow
+                                </a>
+                                {% else %}
+                                <a href="{% url 'follow_user' profile.user.id %}" 
+                                    class="btn btn-primary btn-sm px-4"
+                                    style="background: #1DA1F2; border: none;">
+                                    Follow
+                                </a>
+                            {% endif %}
+                        {% endif %}
+
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">No users found.</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock content %}
