@@ -1,32 +1,38 @@
 {% extends 'main.html' %}
 {% block content %}
 
-{% if request.user.is_authenticated %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="card shadow border-0" style="max-width: 400px; width: 100%;">
+        <div class="card-body p-5">
 
-<h1>You are already loggend in ! </h1>
+            {% if request.user.is_authenticated %}
+                <div class="text-center py-5">
+                    <h4>You are already logged in</h4>
+                    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Go to Home</a>
+                </div>
+            {% else %}
+                <h3 class="text-center mb-5" style="color: #1DA1F2;">Log in</h3>
 
-{% else %}
-<h1>Login</h1>
-<br><br>
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input name="username" type="text" class="form-control form-control-lg" placeholder="Username" required autofocus>
+                    </div>
+                    <div class="mb-4">
+                        <input name="password" type="password" class="form-control form-control-lg" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold" style="background:#1DA1F2;border:none;height:50px;">Log in</button>
+                </form>
 
-<form method="Post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="exampleInputEmail1" class="form-label">Username</label>
-      <input name= "username" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="For example : Mehdi">
+                <div class="text-center mt-4">
+                    <a href="{% url 'reset_password' %}" style="color:#1DA1F2;font-weight:500;text-decoration:none;">
+                        Forgot password?
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
     </div>
-    <div class="mb-3">
-      <label for="exampleInputPassword1" class="form-label">Password</label>
-      <input name="password" type="password" class="form-control" id="exampleInputPassword1">
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-
-  <small class="text-muted">
-    <a href="{% url 'reset_password' %}">Forgot Password?</a>
-  </small>
-
-  {% endif %}
+</div>
 
 {% endblock content %}

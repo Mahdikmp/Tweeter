@@ -3,80 +3,74 @@
 
 {% block content %}
 
-<div class="container py-5">
+<div class="container py-4">
     <div class="row g-5">
 
-        <!-- Main Feed - Tweets -->
         <div class="col-lg-8">
 
-            <h2 class="fw-bold mb-5" style="color: #1DA1F2; font-size: 1.8rem;">Home</h2>
+            <h2 class="fw-bold mb-4" style="color:#1DA1F2;">Home</h2>
 
             {% for tweet in tweets %}
-            <div class="bg-white border rounded mb-4 p-4" style="border: 1px solid #e1e8ed;">
-                <div class="d-flex gap-3">
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex">
+                        {% if tweet.user.profile.profile_image %}
+                            <img src="{{ tweet.user.profile.profile_image.url }}" class="rounded-circle me-3" width="48" height="48">
+                        {% else %}
+                            <img src="{% static 'images/default.png' %}" class="rounded-circle me-3" width="48" height="48">
+                        {% endif %}
 
-                    <!-- User Avatar -->
-                    {% if tweet.user.profile.profile_image %}
-                        <img src="{{ tweet.user.profile.profile_image.url }}" 
-                             class="rounded-circle flex-shrink-0" width="48" height="48" alt="{{ tweet.user.username }}">
-                    {% else %}
-                        <img src="{% static 'images/default.png' %}" 
-                             class="rounded-circle flex-shrink-0" width="48" height="48" alt="default">
-                    {% endif %}
+                        <div class="flex-grow-1">
+                            <strong>{{ tweet.user.username }}</strong>
+                            <p class="mt-2 mb-3">{{ tweet.body }}</p>
 
-                    <div class="w-100">
-                        <h6 class="fw-bold mb-1">{{ tweet.user.username }}</h6>
-                        <p class="mb-3 text-dark">{{ tweet.body }}</p>
+                            <div class="d-flex align-items-center gap-4 text-muted small">
 
-                        <div class="d-flex align-items-center gap-4 small text-muted">
+                                {% if request.user.is_authenticated %}
+                                    <form action="{% url 'tweetLike' tweet.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="border-0 bg-transparent d-flex align-items-center gap-1 p-0
+                                            {% if request.user in tweet.likes.all %}text-danger{% else %}text-muted{% endif %}">
+                                            {% if request.user in tweet.likes.all %}
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                            {% else %}
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                            {% endif %}
+                                            <span>{{ tweet.likes.count }}</span>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <div class="d-flex align-items-center gap-1 text-muted">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                        <span>{{ tweet.likes.count }}</span>
+                                    </div>
+                                {% endif %}
 
-                            <!-- Like Button -->
-                            {% if request.user.is_authenticated %}
-                                <form action="{% url 'tweetLike' tweet.id %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    {% if request.user in tweet.likes.all %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Unlike</button>
-                                    {% else %}
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">Like</button>
-                                    {% endif %}
-                                </form>
-                            {% endif %}
+                                <a href="{% url 'tweet' tweet.id %}" class="text-muted text-decoration-none d-flex align-items-center gap-1">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                    <span>{{ tweet.comments.count }}</span>
+                                </a>
 
-                            <!-- Comment Button -->
-                            <a href="{% url 'tweet' tweet.id %}">
-                                <button class="btn btn-sm btn-outline-secondary">Comment</button>
-                            </a>
-
-                            <!-- Stats -->
-                            <span>{{ tweet.likes.count }} likes</span>
-                            <span>{{ tweet.comments.count }} comments</span>
-                            <span style="color: #1DA1F2;">{{ tweet.created|timesince }} ago</span>
+                                <span class="ms-auto">{{ tweet.created|timesince }} ago</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="text-center py-5 text-muted">
-                <p class="fs-5">No tweets yet. Be the first to post!</p>
-            </div>
+            <div class="text-center py-5 text-muted">No tweets yet.</div>
             {% endfor %}
 
         </div>
 
-        <!-- Sidebar - Post New Tweet -->
         {% if request.user.is_authenticated %}
         <div class="col-lg-4">
-            <div class="bg-white border rounded p-4" style="border: 1px solid #e1e8ed; position: sticky; top: 2rem;">
-                <h5 class="fw-bold mb-4">Post a new Tweet</h5>
+            <div class="card border-0 shadow-sm p-4 sticky-top" style="top:20px;">
+                <h5 class="fw-bold mb-3">Post a new Tweet</h5>
                 <form method="POST">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.body }}
-                    </div>
-                    <button type="submit" class="btn btn-primary px-4 btn-sm w-100" 
-                            style="background: #1DA1F2; border: none;">
-                        Post Tweet
-                    </button>
+                    {{ form.body }}
+                    <button type="submit" class="btn btn-primary w-100 mt-3" style="background:#1DA1F2;border:none;height:48px;">Post Tweet</button>
                 </form>
             </div>
         </div>
