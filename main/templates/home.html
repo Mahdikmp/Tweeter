@@ -21,7 +21,7 @@
                         {% endif %}
 
                         <div class="flex-grow-1">
-                            <strong>{{ tweet.user.username }}</strong>
+                            <a href="{% url 'profile' tweet.user.id %}" style="text-decoration: none; color: black;"><strong>{{ tweet.user.username }}</strong></a>
                             <p class="mt-2 mb-3">{{ tweet.body }}</p>
 
                             <div class="d-flex align-items-center gap-4 text-muted small">

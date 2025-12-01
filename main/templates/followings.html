@@ -1,44 +1,67 @@
 {% extends 'main.html' %}
 {% load static %}
+
 {% block content %}
 
-<h1> User followings</h1>
-
-
-
-
 <div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
 
-    <div class="list-group">
-        {% for following in profile.follows.all %}
-            <a href="{% url 'profile' following.user.id %}" class="list-group-item list-group-item-action py-3">
-                <div class="d-flex align-items-center gap-3">
-                    
-                    {% if follower.profile_image %}
-                        <img src="{{ following.profile_image.url }}" 
-                             class="rounded-circle" width="50" height="50" alt="{{ profile.user.username }}">
-                    {% else %}
-                        <img src="{% static 'images/default.png' %}" 
-                             class="rounded-circle" width="50" height="50" alt="default">
-                    {% endif %}
-                    <div>
-                        <h6 class="mb-1 fw-bold">{{ following.user.username }}</h6>
-                        <p class="mb-1"> {{ following.bio }} </p>
-                        <small class="text-muted">Joined {{ following.created|date:"d M Y" }}</small>
-                    </div>
-                    {% if request.user.is_authenticated %}
-                    {% if following in request.user.profile.follows.all %}
-                    <a href="{% url 'unfollow_user' following.user.id %}" class="btn btn-outline-danger btn-sm">Unfollow</a>
-                    {% else %}
-                    <a href="{% url 'follow_user' following.user.id %}" class="btn btn-primary btn-sm">Follow</a>
-                    {% endif %}
+            <h2 class="fw-bold mb-5" style="color: #1DA1F2; font-size: 1.8rem;"> Followings </h2>
+
+            {% for following in profile.follows.all %}
+            <div class="bg-white border rounded mb-4 p-4" style="border: 1px solid #e1e8ed;">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+
+                    <!-- Avatar + Info -->
+                    <a href="{% url 'profile' following.user.id %}" class="d-flex align-items-center gap-3 text-decoration-none text-dark">
+                        {% if following.profile_image %}
+                            <img src="{{ following.profile_image.url }}" 
+                                 class="rounded-circle flex-shrink-0" width="48" height="48" alt="{{ following.user.username }}">
+                        {% else %}
+                            <img src="{% static 'images/default.png' %}" 
+                                 class="rounded-circle flex-shrink-0" width="48" height="48" alt="default">
+                        {% endif %}
+
+                        <div>
+                            <h6 class="fw-bold mb-0">{{ following.user.username }}</h6>
+                            {% if following.bio %}
+                                <small class="text-muted">{{ following.bio }}</small>
+                            {% else %}
+                                <small class="text-muted">None</small>
+                            {% endif %}
+                            <div class="small text-muted">
+                                Joined {{ following.created|date:"d M Y" }}
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Follow / Unfollow Button -->
+                    {% if request.user.is_authenticated and request.user != following.user %}
+                        {% if following in request.user.profile.follows.all %}
+                            <form action="{% url 'unfollow_user' following.user.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger px-4">Unfollow</button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'follow_user' following.user.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary px-4" 
+                                        style="background: #1DA1F2; border: none;">Follow</button>
+                            </form>
+                        {% endif %}
                     {% endif %}
 
                 </div>
-            </a>
-        {% endfor %}
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <p class="fs-5">No followings yet.</p>
+            </div>
+            {% endfor %}
+
+        </div>
     </div>
 </div>
-
 
 {% endblock content %}
